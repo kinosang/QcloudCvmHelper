@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Newtonsoft.Json;
 using QcloudSharp;
 using Enum = QcloudSharp.Enum;
 
@@ -40,11 +41,14 @@ namespace QcloudCvmHelper
             // ReSharper disable once NotResolvedInText
             if (zone == null) throw new ArgumentNullException("AvailabilityZone");
 
-            _client = new QcloudClient() { SecretId = TextSecretId.Text, SecretKey = TextSecretKey.Password };
+            _client = new QcloudClient
+            {
+                SecretId = TextSecretId.Text,
+                SecretKey = TextSecretKey.Password
+            };
 
-            var resultString = Helper.GetHttpResult(_client.DescribeUserInfo(Enum.Endpoint.Trade, zone.Region));
-
-            dynamic result = Helper.ParseResult(resultString);
+            var resultString = _client.DescribeUserInfo(Enum.Endpoint.Trade, zone.Region);
+            dynamic result = JsonConvert.DeserializeObject<ApiResult>(resultString);
 
             if (result.Code == 0)
             {
@@ -72,9 +76,9 @@ namespace QcloudCvmHelper
             // ReSharper disable once NotResolvedInText
             if (zone == null) throw new ArgumentNullException("AvailabilityZone");
 
-            var resultString = Helper.GetHttpResult(_client.DescribeAvailabilityZones(Enum.Endpoint.Cvm, zone.Region, new KeyValuePair<string, string>("zoneId", zone.ZoneId)));
-
-            dynamic result = Helper.ParseResult(resultString);
+            var resultString = _client.DescribeAvailabilityZones(Enum.Endpoint.Cvm, zone.Region, new KeyValuePair<string, string>("zoneId", zone.ZoneId));
+            
+            dynamic result = JsonConvert.DeserializeObject<ApiResult>(resultString);
 
             if (result.Code == 0)
             {
@@ -101,7 +105,7 @@ namespace QcloudCvmHelper
 
         private ApiResult CreateCvm(AvailabilityZone zone, string password)
         {
-            return Helper.ParseResult(Helper.GetHttpResult(_client.RunInstancesHour(Enum.Endpoint.Cvm, zone.Region, new[] {
+            var resultString = _client.RunInstancesHour(Enum.Endpoint.Cvm, zone.Region, new[] {
                     new KeyValuePair<string, string>("zoneId", zone.ZoneId),
                     new KeyValuePair<string, string>("cpu", "1"),
                     new KeyValuePair<string, string>("mem", "1"),
@@ -110,15 +114,16 @@ namespace QcloudCvmHelper
                     new KeyValuePair<string, string>("bandwidth", "1"),
                     new KeyValuePair<string, string>("storageSize", "0"),
                     new KeyValuePair<string, string>("password", password),
-            })));
+            });
+            
+            return JsonConvert.DeserializeObject<ApiResult>(resultString);
         }
 
         private ApiResult GetCvmInfo(AvailabilityZone zone, string unInstanceId)
         {
-            return
-                Helper.ParseResult(
-                    Helper.GetHttpResult(_client.DescribeInstances(Enum.Endpoint.Cvm, zone.Region,
-                        new KeyValuePair<string, string>("instanceIds.1", unInstanceId))));
+            var resultString = _client.DescribeInstances(Enum.Endpoint.Cvm, zone.Region,
+                        new KeyValuePair<string, string>("instanceIds.1", unInstanceId));
+            return JsonConvert.DeserializeObject<ApiResult>(resultString);
         }
 
         private string RandomPassword(int length)
