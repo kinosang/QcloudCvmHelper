@@ -1,5 +1,4 @@
 version: 0.9.{build}
-skip_tags: true
 configuration: Release
 platform: Any CPU
 assembly_info:
@@ -10,6 +9,9 @@ assembly_info:
   assembly_informational_version: '{version}'
 install:
 - cmd: nuget restore
+nuget:
+  account_feed: true
+  project_feed: true
 build:
   verbosity: detailed
 artifacts:
@@ -21,6 +23,8 @@ deploy:
   auth_token:
     secure: 49h1/SXggw6sDLDix121vnZO1XeUqNJkKUDEwx+QdHQJzEJwO2bgRqOs6HPNDExh
   artifact: QcloudCvmHelper
-  draft: true
-  prerelease: true
+  draft: false
+  prerelease: false
   force_update: true
+  on:
+    appveyor_repo_tag: true
