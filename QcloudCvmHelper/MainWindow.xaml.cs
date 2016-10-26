@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Newtonsoft.Json;
 using QcloudSharp;
+using static System.Int32;
 using Enum = QcloudSharp.Enum;
 
 namespace QcloudCvmHelper
@@ -50,23 +51,23 @@ namespace QcloudCvmHelper
             var resultString = _client.DescribeUserInfo(Enum.Endpoint.Trade, zone.Region);
             dynamic result = JsonConvert.DeserializeObject<ApiResult>(resultString);
 
-            if (result.Code == 0)
+            try
             {
-                try
+                if (result.Code == 0)
                 {
                     TextLog.Text += "-------用户信息-------\n";
                     TextLog.Text += $"姓名：{result.userInfo.name}\n邮箱：{result.userInfo.mail}\n电话：{result.userInfo.phone}\n";
                     TextLog.Text += "--------获取成功--------\n-请继续获取可用区信息-\n-------------------------\n";
                     DescribeAvailabilityZones.IsEnabled = true;
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show(ex.Message);
+                    throw new Exception(result.Message);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                TextLog.Text += result.Message;
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -77,12 +78,12 @@ namespace QcloudCvmHelper
             if (zone == null) throw new ArgumentNullException("AvailabilityZone");
 
             var resultString = _client.DescribeAvailabilityZones(Enum.Endpoint.Cvm, zone.Region, new KeyValuePair<string, string>("zoneId", zone.ZoneId));
-            
+
             dynamic result = JsonConvert.DeserializeObject<ApiResult>(resultString);
 
-            if (result.Code == 0)
+            try
             {
-                try
+                if (result.Code == 0)
                 {
                     foreach (var rZone in result.zoneSet)
                     {
@@ -91,15 +92,16 @@ namespace QcloudCvmHelper
                     }
                     TextLog.Text += "--------获取成功--------\n-------开始摇滚吧-------\n-------------------------\n";
                     Rock.IsEnabled = true;
+
                 }
-                catch (Exception ex)
+                else
                 {
-                    MessageBox.Show(ex.Message);
+                    throw new Exception(result.Message);
                 }
             }
-            else
+            catch (Exception ex)
             {
-                TextLog.Text = result.Message;
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -115,7 +117,7 @@ namespace QcloudCvmHelper
                     new KeyValuePair<string, string>("storageSize", "0"),
                     new KeyValuePair<string, string>("password", password),
             });
-            
+
             return JsonConvert.DeserializeObject<ApiResult>(resultString);
         }
 
@@ -143,7 +145,7 @@ namespace QcloudCvmHelper
             // ReSharper disable once NotResolvedInText
             if (zone == null) throw new ArgumentNullException("AvailabilityZone");
 
-            for (int i = 0; i < Int32.Parse(TotalNum.Text); i++)
+            for (var i = 0; i < Parse(TotalNum.Text); i++)
             {
                 try
                 {
