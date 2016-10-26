@@ -1,0 +1,26 @@
+version: 0.9.{build}
+skip_tags: true
+configuration: Release
+platform: Any CPU
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+install:
+- cmd: nuget restore
+build:
+  verbosity: detailed
+artifacts:
+- path: QcloudCvmHelper\bin\Release\
+  name: QcloudCvmHelper
+deploy:
+- provider: GitHub
+  description: AppVeyor CI deployment
+  auth_token:
+    secure: 49h1/SXggw6sDLDix121vnZO1XeUqNJkKUDEwx+QdHQJzEJwO2bgRqOs6HPNDExh
+  artifact: QcloudCvmHelper
+  draft: true
+  prerelease: true
+  force_update: true
