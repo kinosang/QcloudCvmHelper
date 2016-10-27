@@ -113,6 +113,7 @@ namespace QcloudCvmHelper
                     new KeyValuePair<string, string>("mem", "1"),
                     new KeyValuePair<string, string>("imageId", "img-3wnd9xpl"),
                     new KeyValuePair<string, string>("imageType", "2"),
+                    new KeyValuePair<string, string>("bandwidthType", "PayByTraffic"),
                     new KeyValuePair<string, string>("bandwidth", "1"),
                     new KeyValuePair<string, string>("storageSize", "0"),
                     new KeyValuePair<string, string>("password", password),
