@@ -5,3 +5,13 @@ QcloudCvmHelper: Quantity creating Qcloud CVM
 Fill `SecrectId` and `SecrectKey` then fallow the tips to get rock.
 
 It is built with [QcloudSharp](https://github.com/kinosang/QcloudSharp), the unoffical Qcloud.com API wrapper for .Net.
+
+## Donate us
+
+[Donate us](https://7in0.me/#donate)
+
+## License
+
+The MIT License
+
+More info see [LICENSE](LICENSE)
