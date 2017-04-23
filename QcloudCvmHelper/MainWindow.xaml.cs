@@ -1,13 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using QcloudSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Newtonsoft.Json;
-using QcloudSharp;
-using QcloudSharp.Enums;
 using static System.Int32;
 
 namespace QcloudCvmHelper
@@ -76,37 +75,10 @@ namespace QcloudCvmHelper
             var zone = ComboArea.SelectionBoxItem as AvailabilityZone;
             // ReSharper disable once NotResolvedInText
             if (zone == null) throw new ArgumentNullException("AvailabilityZone");
-
-            var resultString = _client.DescribeProductRegionList(Enums.Endpoint.Cvm, zone.Region, new KeyValuePair<string, string>("instanceType", 1));
-
-            dynamic result = JsonConvert.DeserializeObject<ApiResult>(resultString);
-
-            try
-            {
-                if (result.Code == 0)
-                {
-                    foreach (KeyValuePair aRegion in result.availableRegion)
-                    {
-                        TextLog.Text += "---------可用地域---------\n";
-                        TextLog.Text += $"编码：{aRegion.Key}\n显示名：{aRegion.Value}\n";
-                    }
-                    TextLog.Text += "--------获取成功--------\n-------------------------\n";
-                    Rock.IsEnabled = true;
-
-                }
-                else
-                {
-                    throw new Exception(result.Message);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-            }
-
+            
             var resultString = _client.DescribeAvailabilityZones(Enums.Endpoint.Cvm, zone.Region, new KeyValuePair<string, string>("zoneId", zone.ZoneId));
 
-            dynamic result = JsonConvert.DeserializeObject<ApiResult>(resultString);
+            var result = JsonConvert.DeserializeObject<ApiResult>(resultString);
 
             try
             {
