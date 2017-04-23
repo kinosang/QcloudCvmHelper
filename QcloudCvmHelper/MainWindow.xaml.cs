@@ -7,8 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Newtonsoft.Json;
 using QcloudSharp;
+using QcloudSharp.Enums;
 using static System.Int32;
-using Enum = QcloudSharp.Enum;
 
 namespace QcloudCvmHelper
 {
@@ -23,13 +23,13 @@ namespace QcloudCvmHelper
         {
             InitializeComponent();
 
-            ComboArea.Items.Add(new AvailabilityZone { Name = "北京一区", ZoneId = "800001", Region = Enum.Region.BJS });
-            ComboArea.Items.Add(new AvailabilityZone { Name = "上海一区", ZoneId = "200001", Region = Enum.Region.SHA });
-            ComboArea.Items.Add(new AvailabilityZone { Name = "广州一区", ZoneId = "100001", Region = Enum.Region.CAN });
-            ComboArea.Items.Add(new AvailabilityZone { Name = "广州二区", ZoneId = "100002", Region = Enum.Region.CAN });
-            ComboArea.Items.Add(new AvailabilityZone { Name = "广州三区", ZoneId = "100003", Region = Enum.Region.CAN });
-            ComboArea.Items.Add(new AvailabilityZone { Name = "香港一区", ZoneId = "300001", Region = Enum.Region.HKG });
-            ComboArea.Items.Add(new AvailabilityZone { Name = "北美一区", ZoneId = "400001", Region = Enum.Region.YTO });
+            ComboArea.Items.Add(new AvailabilityZone { Name = "北京一区", ZoneId = "800001", Region = Enums.Region.BJS });
+            ComboArea.Items.Add(new AvailabilityZone { Name = "上海一区", ZoneId = "200001", Region = Enums.Region.SHA });
+            ComboArea.Items.Add(new AvailabilityZone { Name = "广州一区", ZoneId = "100001", Region = Enums.Region.CAN });
+            ComboArea.Items.Add(new AvailabilityZone { Name = "广州二区", ZoneId = "100002", Region = Enums.Region.CAN });
+            ComboArea.Items.Add(new AvailabilityZone { Name = "广州三区", ZoneId = "100003", Region = Enums.Region.CAN });
+            ComboArea.Items.Add(new AvailabilityZone { Name = "香港一区", ZoneId = "300001", Region = Enums.Region.HKG });
+            ComboArea.Items.Add(new AvailabilityZone { Name = "北美一区", ZoneId = "400001", Region = Enums.Region.YTO });
 
             ComboArea.SelectedIndex = 4;
 
@@ -48,7 +48,7 @@ namespace QcloudCvmHelper
                 SecretKey = TextSecretKey.Password
             };
 
-            var resultString = _client.DescribeUserInfo(Enum.Endpoint.Trade, zone.Region);
+            var resultString = _client.DescribeUserInfo(Enums.Endpoint.Trade, zone.Region);
             dynamic result = JsonConvert.DeserializeObject<ApiResult>(resultString);
 
             try
@@ -77,7 +77,34 @@ namespace QcloudCvmHelper
             // ReSharper disable once NotResolvedInText
             if (zone == null) throw new ArgumentNullException("AvailabilityZone");
 
-            var resultString = _client.DescribeAvailabilityZones(Enum.Endpoint.Cvm, zone.Region, new KeyValuePair<string, string>("zoneId", zone.ZoneId));
+            var resultString = _client.DescribeProductRegionList(Enums.Endpoint.Cvm, zone.Region, new KeyValuePair<string, string>("instanceType", 1));
+
+            dynamic result = JsonConvert.DeserializeObject<ApiResult>(resultString);
+
+            try
+            {
+                if (result.Code == 0)
+                {
+                    foreach (KeyValuePair aRegion in result.availableRegion)
+                    {
+                        TextLog.Text += "---------可用地域---------\n";
+                        TextLog.Text += $"编码：{aRegion.Key}\n显示名：{aRegion.Value}\n";
+                    }
+                    TextLog.Text += "--------获取成功--------\n-------------------------\n";
+                    Rock.IsEnabled = true;
+
+                }
+                else
+                {
+                    throw new Exception(result.Message);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            var resultString = _client.DescribeAvailabilityZones(Enums.Endpoint.Cvm, zone.Region, new KeyValuePair<string, string>("zoneId", zone.ZoneId));
 
             dynamic result = JsonConvert.DeserializeObject<ApiResult>(resultString);
 
@@ -107,7 +134,7 @@ namespace QcloudCvmHelper
 
         private ApiResult CreateCvm(AvailabilityZone zone, string password)
         {
-            var resultString = _client.RunInstancesHour(Enum.Endpoint.Cvm, zone.Region, new[] {
+            var resultString = _client.RunInstancesHour(Enums.Endpoint.Cvm, zone.Region, new[] {
                     new KeyValuePair<string, string>("zoneId", zone.ZoneId),
                     new KeyValuePair<string, string>("cpu", "1"),
                     new KeyValuePair<string, string>("mem", "1"),
@@ -124,7 +151,7 @@ namespace QcloudCvmHelper
 
         private ApiResult GetCvmInfo(AvailabilityZone zone, string unInstanceId)
         {
-            var resultString = _client.DescribeInstances(Enum.Endpoint.Cvm, zone.Region,
+            var resultString = _client.DescribeInstances(Enums.Endpoint.Cvm, zone.Region,
                         new KeyValuePair<string, string>("instanceIds.1", unInstanceId));
             return JsonConvert.DeserializeObject<ApiResult>(resultString);
         }

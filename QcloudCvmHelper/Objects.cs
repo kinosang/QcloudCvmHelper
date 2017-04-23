@@ -4,7 +4,7 @@
     {
         public string Name { get; set; }
         public string ZoneId { get; set; }
-        public QcloudSharp.Enum.Region Region { get; set; }
+        public QcloudSharp.Enums.Region Region { get; set; }
 
         public override string ToString()
         {
